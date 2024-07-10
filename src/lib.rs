@@ -1,4 +1,4 @@
-use stateflow_trans::*;
+use netsblox_stateflow::*;
 use wasm_bindgen::prelude::*;
 use netsblox_extension_macro::*;
 use netsblox_extension_util::*;
