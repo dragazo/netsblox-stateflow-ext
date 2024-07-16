@@ -8,11 +8,11 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 netsblox-stateflow = "0.1.0"
-netsblox-extension-macro = { path = "../../netsblox-extension-rs/netsblox-extension-macro" }
-netsblox-extension-util = { path = "../../netsblox-extension-rs/netsblox-extension-util" }
+netsblox-extension-macro = "0.1.0"
+netsblox-extension-util = "0.2.4"
 wasm-bindgen = "0.2.92"
-web-sys = { version = "0.3.69", features = ["console"] }
+js-helpers = "0.1.1"
 getrandom = { version = "0.2.15", features = ["js"] }
 
 [build-dependencies]
-netsblox-extension-util = { path = "../../netsblox-extension-rs/netsblox-extension-util" }
+netsblox-extension-util = "0.2.4"
