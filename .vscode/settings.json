@@ -3,6 +3,7 @@
         "bindgen",
         "graphviz",
         "netsblox",
-        "stateflow"
+        "stateflow",
+        "stylesheet"
     ]
 }

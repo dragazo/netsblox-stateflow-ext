@@ -4,15 +4,34 @@ use netsblox_extension_macro::*;
 use netsblox_extension_util::*;
 use js_helpers::*;
 
-#[wasm_bindgen]
-extern "C" {
-    fn alert(msg: &str);
-}
-
 #[netsblox_extension_info]
 pub const INFO: ExtensionInfo = ExtensionInfo {
     name: "StateMachine",
 };
+
+#[wasm_bindgen(start)]
+pub fn setup() {
+    console_error_panic_hook::set_once();
+
+    let s = js!(window.document.createElement("script")).unwrap();
+    js!(s.onload = () => {
+        window.Viz.instance().then((x) => {
+            window.viz_js_instance = x;
+        });
+    }).unwrap();
+    js!(s.src = "https://extensions.netsblox.org/extensions/StateMachine/viz-standalone.js").unwrap();
+    js!(window.document.body.appendChild(s)).unwrap();
+
+    let s = js!(window.document.createElement("link")).unwrap();
+    js!(s.rel = "stylesheet").unwrap();
+    js!(s.type = "text/css").unwrap();
+    js!(s.href = "https://pseudomorphic.netsblox.org/style.css").unwrap();
+    js!(window.document.head.appendChild(s)).unwrap();
+
+    let s = js!(window.document.createElement("script")).unwrap();
+    js!(s.src = "https://pseudomorphic.netsblox.org/script.js").unwrap();
+    js!(window.document.body.appendChild(s)).unwrap();
+}
 
 #[wasm_bindgen]
 #[netsblox_extension_menu_item("Visualize")]
@@ -21,11 +40,16 @@ pub fn visualize() {
     match Project::compile(&xml, None) {
         Ok(proj) => {
             let graphviz_code = graphviz::print(proj.to_graphviz(), &mut Default::default());
-            let encoded = js_sys::encode_uri_component(&graphviz_code).as_string().unwrap();
-            let url = format!("https://dreampuf.github.io/GraphvizOnline/#{encoded}");
-            js!(window.open(url, "_blank")).unwrap();
+            let svg = js!(window.viz_js_instance.renderSVGElement(graphviz_code)).unwrap();
+
+            let dialog = js!(window.createDialog("State Machine")).unwrap();
+            js!(window.setupDialog(dialog)).unwrap();
+            js!(dialog.querySelector("content").appendChild(svg)).unwrap();
+            js!(window.showDialog(dialog)).unwrap();
         }
-        Err(e) => alert(&format!("visualize error: {e:?}")),
+        Err(e) => {
+            js!(window.alert(format!("visualize error: {e:?}"))).unwrap();
+        }
     }
 }
 

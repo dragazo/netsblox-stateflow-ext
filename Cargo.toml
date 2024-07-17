@@ -1,5 +1,5 @@
 [package]
-name = "stateflow-trans-ext"
+name = "netsblox-stateflow-ext"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,8 +11,9 @@ netsblox-stateflow = "0.1.0"
 netsblox-extension-macro = "0.1.0"
 netsblox-extension-util = "0.2.4"
 wasm-bindgen = "0.2.92"
-js-helpers = "0.1.1"
+js-helpers = "0.1.5"
 getrandom = { version = "0.2.15", features = ["js"] }
+console_error_panic_hook = "0.1.7"
 
 [build-dependencies]
 netsblox-extension-util = "0.2.4"
