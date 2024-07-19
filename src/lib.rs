@@ -37,7 +37,7 @@ pub fn setup() {
 #[netsblox_extension_menu_item("Visualize")]
 pub fn visualize() {
     let xml = js!(window.world.children[0].getSerializedRole()).unwrap().as_string().unwrap();
-    match Project::compile(&xml, None) {
+    match Project::compile(&xml, None, Settings { omit_unknown_actions: true }) {
         Ok(proj) => {
             let graphviz_code = graphviz::print(proj.to_graphviz(), &mut Default::default());
             let svg = js!(window.viz_js_instance.renderSVGElement(graphviz_code)).unwrap();
