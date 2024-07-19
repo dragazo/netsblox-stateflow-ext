@@ -59,15 +59,21 @@ pub const CATEGORY: CustomCategory = CustomCategory {
     color: (150.0, 150.0, 150.0),
 };
 
+fn unknown_var(var: &JsValue) -> JsError {
+    JsError::new(&format!("unknown variable: {}", var.as_string().unwrap_or_default()))
+}
+
 #[wasm_bindgen]
 #[netsblox_extension_block(name = "smTransition", category = "StateMachine", spec = "transition %var to state %s", pass_proc = true, type_override = BlockType::Terminator)]
-pub fn transition(proc: JsValue, machine: JsValue, state: JsValue) {
-    js!(proc.doSetVar(machine, state)).unwrap();
+pub fn transition(proc: JsValue, machine: JsValue, state: JsValue) -> Result<(), JsError> {
+    js!(proc.doSetVar(machine, state)).map_err(|_| unknown_var(&machine))?;
     js!(proc.doStop()).unwrap();
+    Ok(())
 }
 
 #[wasm_bindgen]
 #[netsblox_extension_block(name = "smInState", category = "StateMachine", spec = "%var in state %s ?", pass_proc = true)]
-pub fn check_state(proc: JsValue, machine: JsValue, state: JsValue) -> bool {
-    js!(proc.context.variables.getVar(machine)).unwrap() == state
+pub fn check_state(proc: JsValue, machine: JsValue, state: JsValue) -> Result<bool, JsError> {
+    let val = js!(proc.context.variables.getVar(machine)).map_err(|_| unknown_var(&machine))?;
+    Ok(js!(window.snapEquals(val, state)).unwrap().as_bool().unwrap())
 }
