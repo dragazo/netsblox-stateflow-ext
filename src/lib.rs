@@ -29,6 +29,33 @@ pub fn setup() {
     js!(window.document.head.appendChild(s)).unwrap();
 
     let s = js!(window.document.createElement("script")).unwrap();
+    js!(s.onload = () => {
+        window.sm_visualizer = window.createDialog("State Machine");
+        window.setupDialog(window.sm_visualizer);
+
+        window.sm_invalidate_last_timestamp = 0;
+        window.sm_invalidate = (force) => {
+            const t = +new Date();
+            if (!force && t - window.sm_invalidate_last_timestamp < 500) {
+                return;
+            }
+            window.sm_invalidate_last_timestamp = t;
+
+            try {
+                if (window.sm_visualizer.getClientRects().length > 0) {
+                    window.StateMachine_fns.visualize();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const passive_invalidate = () => {
+            window.sm_invalidate(false);
+            setTimeout(passive_invalidate, 1000);
+        };
+        passive_invalidate();
+    }).unwrap();
     js!(s.src = "https://pseudomorphic.netsblox.org/script.js").unwrap();
     js!(window.document.body.appendChild(s)).unwrap();
 }
@@ -36,21 +63,23 @@ pub fn setup() {
 #[wasm_bindgen]
 #[netsblox_extension_menu_item("Visualize")]
 pub fn visualize() {
+    let dialog = js!(window.sm_visualizer).unwrap();
+    let content = js!(dialog.querySelector("content")).unwrap();
+    js!(content.textContent = "").unwrap();
+
     let xml = js!(window.world.children[0].getSerializedRole()).unwrap().as_string().unwrap();
     match Project::compile(&xml, None, Settings { omit_unknown_blocks: true }) {
         Ok(proj) => {
             let graphviz_code = graphviz::print(proj.to_graphviz(), &mut Default::default());
             let svg = js!(window.viz_js_instance.renderSVGElement(graphviz_code)).unwrap();
-
-            let dialog = js!(window.createDialog("State Machine")).unwrap();
-            js!(window.setupDialog(dialog)).unwrap();
-            js!(dialog.querySelector("content").appendChild(svg)).unwrap();
-            js!(window.showDialog(dialog)).unwrap();
+            js!(content.appendChild(svg)).unwrap();
         }
         Err(e) => {
-            js!(window.alert(format!("visualize error: {e:?}"))).unwrap();
+            js!(content.textContent = format!("visualize error: {e:?}")).unwrap();
         }
     }
+
+    js!(window.showDialog(dialog)).unwrap();
 }
 
 #[netsblox_extension_category]
@@ -68,6 +97,7 @@ fn unknown_var(var: &JsValue) -> JsError {
 pub fn transition(proc: JsValue, machine: JsValue, state: JsValue) -> Result<(), JsError> {
     js!(proc.doSetVar(machine, state)).map_err(|_| unknown_var(&machine))?;
     js!(proc.doStop()).unwrap();
+    js!(window.sm_invalidate(true)).unwrap();
     Ok(())
 }
 
