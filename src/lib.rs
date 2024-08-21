@@ -82,6 +82,19 @@ pub fn visualize() {
     js!(window.showDialog(dialog)).unwrap();
 }
 
+#[wasm_bindgen]
+#[netsblox_extension_menu_item("Copy Stateflow Code")]
+pub fn copy_stateflow_code() {
+    let xml = js!(window.world.children[0].getSerializedRole()).unwrap().as_string().unwrap();
+    match Project::compile(&xml, None, Settings { omit_unknown_blocks: true }).and_then(|x| x.to_stateflow()) {
+        Ok(res) => match js!(window.navigator.clipboard.writeText({ res.as_str() })) {
+            Ok(_) => (),
+            Err(_) => { js!(window.alert("failed to copy to clipboard (check browser permissions)")).unwrap(); }
+        }
+        Err(e) => { js!(window.alert(format!("translation error: {e:?}"))).unwrap(); }
+    }
+}
+
 #[netsblox_extension_category]
 pub const CATEGORY: CustomCategory = CustomCategory {
     name: "StateMachine",
