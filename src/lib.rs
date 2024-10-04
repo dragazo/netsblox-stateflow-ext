@@ -101,8 +101,28 @@ pub const CATEGORY: CustomCategory = CustomCategory {
     color: (150.0, 150.0, 150.0),
 };
 
+#[netsblox_extension_label_part]
+pub const VAR_TYPE: LabelPart = LabelPart {
+    spec: "smVarType",
+    text: None,
+    numeric: false,
+    readonly: true,
+    menu: Some(&[
+        Menu::Entry { label: "internal", value: "internal" },
+        Menu::Entry { label: "input", value: "input" },
+        Menu::Entry { label: "output", value: "output" },
+    ]),
+};
+
 fn unknown_var(var: &JsValue) -> JsError {
     JsError::new(&format!("unknown variable: {}", var.as_string().unwrap_or_default()))
+}
+
+#[wasm_bindgen]
+#[netsblox_extension_block(name = "smInState", category = "StateMachine", spec = "%var in state %s ?", pass_proc = true)]
+pub fn in_state(proc: JsValue, machine: JsValue, state: JsValue) -> Result<bool, JsError> {
+    let val = js!(proc.context.variables.getVar(machine)).map_err(|_| unknown_var(&machine))?;
+    Ok(js!(window.snapEquals(val, state)).unwrap().as_bool().unwrap())
 }
 
 #[wasm_bindgen]
@@ -115,8 +135,5 @@ pub fn transition(proc: JsValue, machine: JsValue, state: JsValue) -> Result<(),
 }
 
 #[wasm_bindgen]
-#[netsblox_extension_block(name = "smInState", category = "StateMachine", spec = "%var in state %s ?", pass_proc = true)]
-pub fn check_state(proc: JsValue, machine: JsValue, state: JsValue) -> Result<bool, JsError> {
-    let val = js!(proc.context.variables.getVar(machine)).map_err(|_| unknown_var(&machine))?;
-    Ok(js!(window.snapEquals(val, state)).unwrap().as_bool().unwrap())
-}
+#[netsblox_extension_block(name = "smMarkVar", category = "StateMachine", spec = "mark var %var as %smVarType", defaults = "[null, 'internal']", pad_top = true)]
+pub fn mark_var(_var: JsValue, _type: JsValue) {}
