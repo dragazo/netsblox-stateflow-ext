@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-netsblox-stateflow = "0.1.15"
+netsblox-stateflow = "0.1.16"
 netsblox-extension-macro = "0.1.0"
 netsblox-extension-util = { path = "../netsblox-extension-rs/netsblox-extension-util" }
 js-helpers = "0.1.7"

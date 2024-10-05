@@ -108,7 +108,7 @@ pub const VAR_TYPE: LabelPart = LabelPart {
     numeric: false,
     readonly: true,
     menu: Some(&[
-        Menu::Entry { label: "internal", value: "internal" },
+        Menu::Entry { label: "local", value: "local" },
         Menu::Entry { label: "input", value: "input" },
         Menu::Entry { label: "output", value: "output" },
     ]),
@@ -135,5 +135,5 @@ pub fn transition(proc: JsValue, machine: JsValue, state: JsValue) -> Result<(),
 }
 
 #[wasm_bindgen]
-#[netsblox_extension_block(name = "smMarkVar", category = "StateMachine", spec = "mark var %var as %smVarType", defaults = "[null, 'internal']", pad_top = true)]
+#[netsblox_extension_block(name = "smMarkVar", category = "StateMachine", spec = "mark var %var as %smVarType", defaults = "[null, 'local']", pad_top = true)]
 pub fn mark_var(_var: JsValue, _type: JsValue) {}
