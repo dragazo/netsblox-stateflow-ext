@@ -7,12 +7,12 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-netsblox-stateflow = "0.1.16"
+netsblox-stateflow = "0.2.0"
 netsblox-extension-macro = "0.1.0"
-netsblox-extension-util = { path = "../netsblox-extension-rs/netsblox-extension-util" }
+netsblox-extension-util = "0.2.7"
 js-helpers = "0.1.7"
 getrandom = { version = "*", features = ["js"] }
 console_error_panic_hook = "0.1.7"
 
 [build-dependencies]
-netsblox-extension-util = { path = "../netsblox-extension-rs/netsblox-extension-util" }
+netsblox-extension-util = "0.2.7"
